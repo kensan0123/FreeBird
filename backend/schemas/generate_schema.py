@@ -1,0 +1,22 @@
+from pydantic import BaseModel
+from typing import Literal
+
+
+class GenerateRequest(BaseModel):
+    title: str
+    emoji: str
+    type: str
+    content: str
+
+
+class AIGenerateRequest(BaseModel):
+    prompt: str
+
+
+class GeneratedResponse(BaseModel):
+    status: Literal["generated!", "fail"]
+    slug: str
+
+
+class AIPrompt(BaseModel):
+    prompt: str

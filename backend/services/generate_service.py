@@ -1,14 +1,22 @@
-from routers.generate import GenerateRequest
+from schemas.generate_schema import GenerateRequest, GeneratedResponse
 import requests
-from pydantic import BaseModel
-from typing import Literal
+from core.settings import KENN_ZENN_URL
 
-class GeneratedResponse(BaseModel):
-   status: Literal["generated!", "fail"]
-   slug: str
 
 def generate_article(req: GenerateRequest) -> GeneratedResponse:
+    """
+    Docstring for generate_article
     
-    article_response: GeneratedResponse = requests.post(KENN_ZENN_URL + "/generate")
+    :param req: Description
+    :type req: GenerateRequest
+    :return: Description
+    :rtype: GeneratedResponse
+    """
+    response = requests.post(f"{KENN_ZENN_URL}/generate", json=req.model_dump())
 
-    return article_response
+    response_json = response.json()
+    generate_response: GeneratedResponse = GeneratedResponse(
+        status=response_json.get("status"), slug=response_json.get("slug")
+    )
+
+    return generate_response

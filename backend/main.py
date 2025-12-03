@@ -1,6 +1,7 @@
 from fastapi import FastAPI
-from routers import generate
+from routers import generate, publish
 
 app = FastAPI()
 
 app.include_router(generate.router)
+app.include_router(publish.router)
