@@ -1,0 +1,33 @@
+{
+  "name": "Zenn Publisher Development",
+  "dockerComposeFile": "../docker-compose.yml",
+  "service": "fastapi",
+  "workspaceFolder": "/app",
+
+  // コンテナ内で自動的にインストールされる拡張機能
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "anthropic.claude-code",
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-python.black-formatter",
+        "charliermarsh.ruff"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "python.languageServer": "Pylance",
+        "python.formatting.provider": "black",
+        "[python]": {
+          "editor.defaultFormatter": "ms-python.python"
+        }
+      }
+    }
+  },
+
+  // コンテナ作成後に実行するコマンド（必要に応じて）
+  "postCreateCommand": "pip install -r requirements.txt",
+
+  // コンテナ内でroot以外のユーザーを使用する場合
+  "remoteUser": "root"
+}

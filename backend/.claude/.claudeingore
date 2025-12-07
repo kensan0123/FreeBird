@@ -1,0 +1,7 @@
+# .claudeignore
+.env
+.env.*
+*.key
+*.pem
+secrets/
+credentials/
