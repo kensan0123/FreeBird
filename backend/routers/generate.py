@@ -1,15 +1,16 @@
-from fastapi import APIRouter
+import json
+
 import requests
+from core.settings import OLLAMA_URL, openai_api_key
+from fastapi import APIRouter
+from openai import OpenAI
 from schemas.generate_schema import (
-    GeneratedResponse,
-    GenerateRequest,
     AIGenerateRequest,
     AIPrompt,
+    GeneratedResponse,
+    GenerateRequest,
 )
 from services.generate_service import generate_article
-from core.settings import OLLAMA_URL, openai_api_key
-import json
-from openai import OpenAI
 
 router = APIRouter(prefix="/generate", tags=["Generate"])
 

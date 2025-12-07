@@ -1,9 +1,9 @@
-from schemas.publish_schemas import PublishRequest, PublishResponse
 import requests
-from requests.exceptions import RequestException, Timeout, ConnectionError, HTTPError
+from core.logger import logger
 from core.settings import KENN_ZENN_URL
 from exceptions.api_exception import KennZennAPIError
-from core.logger import logger
+from requests.exceptions import ConnectionError, HTTPError, RequestException, Timeout
+from schemas.publish_schemas import PublishRequest, PublishResponse
 
 
 def publish_article(req: PublishRequest) -> PublishResponse:
@@ -25,20 +25,20 @@ def publish_article(req: PublishRequest) -> PublishResponse:
 
         response.raise_for_status()
 
-    except Timeout:
+    except Timeout as e:
         logger.error(f"Request to Kenn_Zenn API timed out for slug: {req.slug}")
         raise KennZennAPIError(
             message="Request to Kenn_Zenn API timed out",
             endpoint="/publish",
             status_code=None,
-        )
-    except ConnectionError:
+        ) from e
+    except ConnectionError as e:
         logger.error(f"Failed to connect to Kenn_Zenn API at {KENN_ZENN_URL}")
         raise KennZennAPIError(
             message=f"Failed to connect to Kenn_Zenn API at {KENN_ZENN_URL}",
             endpoint="/publish",
             status_code=None,
-        )
+        ) from e
     except HTTPError as e:
         logger.error(
             f"HTTP error occurred: {str(e)}, status_code: {e.response.status_code}"
@@ -47,22 +47,22 @@ def publish_article(req: PublishRequest) -> PublishResponse:
             message=f"HTTP error occurred: {str(e)}",
             endpoint="/publish",
             status_code=e.response.status_code,
-        )
+        ) from e
     except RequestException as e:
         logger.error(f"Request failed: {str(e)}")
         raise KennZennAPIError(
             message=f"Request failed: {str(e)}", endpoint="/publish", status_code=None
-        )
+        ) from e
 
     try:
         response_json = response.json()
-    except ValueError:
+    except ValueError as e:
         logger.error("Invalid JSON response from Kenn_Zenn API")
         raise KennZennAPIError(
             message="Invalid JSON response from Kenn_Zenn API",
             endpoint="/publish",
             status_code=response.status_code,
-        )
+        ) from e
 
     status = response_json.get("status")
     slug = response_json.get("slug")

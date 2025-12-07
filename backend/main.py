@@ -1,7 +1,6 @@
+from core.logger import logger
 from fastapi import FastAPI
 from routers import generate, publish
-from core.logger import logger
-
 
 app = FastAPI()
 

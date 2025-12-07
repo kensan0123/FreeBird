@@ -1,7 +1,7 @@
+from exceptions.api_exception import KennZennAPIError
 from fastapi import APIRouter, HTTPException
 from schemas.publish_schemas import PublishRequest, PublishResponse
 from services.publish_service import publish_article
-from exceptions.api_exception import KennZennAPIError
 
 router = APIRouter(prefix="/publish", tags=["Publish"])
 
@@ -29,4 +29,4 @@ def publish(req: PublishRequest) -> PublishResponse:
                 "message": e.message,
                 "endpoint": e.endpoint,
             },
-        )
+        ) from e

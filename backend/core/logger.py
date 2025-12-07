@@ -1,5 +1,5 @@
-from logging import Logger
 import logging
+from logging import Logger
 
 logging.basicConfig(
     level=logging.DEBUG,

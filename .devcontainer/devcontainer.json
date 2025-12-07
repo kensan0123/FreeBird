@@ -26,7 +26,7 @@
   },
 
   // コンテナ作成後に実行するコマンド（必要に応じて）
-  "postCreateCommand": "pip install -r requirements.txt",
+  "postCreateCommand": "pip install -e .[dev]",
 
   // コンテナ内でroot以外のユーザーを使用する場合
   "remoteUser": "root"
