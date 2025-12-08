@@ -19,9 +19,7 @@ def publish_article(req: PublishRequest) -> PublishResponse:
     logger.info(f"Publishing article with slug: {req.slug}")
 
     try:
-        response = requests.post(
-            f"{KENN_ZENN_URL}/publish", json=req.model_dump(), timeout=30
-        )
+        response = requests.post(f"{KENN_ZENN_URL}/publish", json=req.model_dump(), timeout=30)
 
         response.raise_for_status()
 
@@ -40,9 +38,7 @@ def publish_article(req: PublishRequest) -> PublishResponse:
             status_code=None,
         ) from e
     except HTTPError as e:
-        logger.error(
-            f"HTTP error occurred: {str(e)}, status_code: {e.response.status_code}"
-        )
+        logger.error(f"HTTP error occurred: {str(e)}, status_code: {e.response.status_code}")
         raise KennZennAPIError(
             message=f"HTTP error occurred: {str(e)}",
             endpoint="/publish",
@@ -68,9 +64,7 @@ def publish_article(req: PublishRequest) -> PublishResponse:
     slug = response_json.get("slug")
 
     if not status or not slug:
-        logger.error(
-            f"Missing required fields in API response. status: {status}, slug: {slug}"
-        )
+        logger.error(f"Missing required fields in API response. status: {status}, slug: {slug}")
         raise KennZennAPIError(
             message="Missing required fields in API response",
             endpoint="/publish",
