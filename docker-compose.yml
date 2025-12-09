@@ -8,11 +8,13 @@ services:
       - "8000:8000"
     volumes:
       - ./backend:/app/backend
-    depends_on:
-      - ollama
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - ARTICLE_DIR=${ARTICLE_DIR:-./articles}
+      - GITHUB_PA=$(GITHUB_PA)
+      - GITHUB_USER=$(GITHUB_USER)
+      - USER_NAME=$(USER_NAME)
+      - USER_EMAIL=$(USER_EMAIL)
 
 volumes:
   ollama:
