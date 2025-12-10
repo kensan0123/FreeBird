@@ -10,6 +10,7 @@ services:
       - ./backend:/app/backend
       - ./articles:/app/articles
       - ./books:/app/books
+      - ./docs:/app/docs
     secrets:
       - github_pat
       - openai_api_key
