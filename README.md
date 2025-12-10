@@ -1,64 +1,362 @@
-# Ken_Zenn_Publisher
+# Kenn_Zenn_Publisher
 
 ## 概要
-Zenn 記事を自動生成するシンプルな FastAPI サービスです。タイトルを送ると、バックエンドが Ollama（llama3）を使って Markdown 形式の記事を返し、`backend/articles/` に保存します。
+
+Zenn記事の生成と公開を自動化するFastAPIサービスです。Docker環境にZenn CLIを統合し、OpenAI APIを使った記事生成、手動コンテンツでの記事作成、GitHubへの自動公開をサポートします。
+
+## 主な機能
+
+- ✨ **AI記事生成**: OpenAI APIを使ってタイトルから記事を自動生成
+- 📝 **手動記事作成**: 用意したコンテンツでZenn記事を作成
+- 🚀 **自動公開**: GitHubへのcommit/pushで記事を公開
+- 🐳 **Docker統合**: Python + Node.js + Zenn CLIを1コンテナで完結
+- 🔄 **ホットリロード**: コード変更が即座に反映
+
+## 技術スタック
+
+- **Backend**: FastAPI (Python 3.11)
+- **記事管理**: Zenn CLI (Node.js 20.x)
+- **AI**: OpenAI API
+- **コンテナ**: Docker / Docker Compose
+- **バージョン管理**: Git / GitHub
+
+---
 
 ## セットアップ
 
-### Docker環境での開発
+### 前提条件
 
-1. Docker と Docker Compose を用意する
-2. リポジトリ直下でコンテナを起動:
-   ```bash
-   docker compose up -d --build
-   ```
-3. 動作確認:
-   - ヘルスチェック: `GET http://localhost:8000/` → `{"status": "running"}`
-   - 記事生成: `POST http://localhost:8000/generate`（JSON 例: `{"title": "Python 入門"}`）
+- Docker & Docker Compose
+- Git
+- OpenAI API Key
+- GitHub Personal Access Token (repo権限)
 
-生成された記事ファイルは `backend/articles/` にタイムスタンプ付きで保存されます。
+### 1. リポジトリをクローン
 
-### ローカル環境での開発（pre-commit使用時）
+```bash
+git clone https://github.com/kensan0123/Kenn_Zenn_Publisher.git
+cd Kenn_Zenn_Publisher
+```
 
-ローカルでpre-commitフックを使用する場合や、IDEでコード補完を使いたい場合は以下の手順で環境を構築してください。
+### 2. 環境変数を設定
 
-1. Python 3.11以上をインストール
-2. 仮想環境を作成してアクティベート:
-   ```bash
-   python -m venv .venv
-   source .venv/bin/activate  # Windowsの場合: .venv\Scripts\activate
-   ```
-3. 開発用の依存関係をインストール:
-   ```bash
-   pip install -e ".[dev]"
-   ```
-4. pre-commitフックをインストール:
-   ```bash
-   pre-commit install
-   ```
+`.env.example`を`.env`にコピーして編集:
 
-これで、コミット時に自動的にRuffやBlackによるコードチェックとフォーマットが実行されます。
-
-### 環境変数の設定
-
-`.env.example`を`.env`にコピーして、必要な環境変数を設定してください:
 ```bash
 cp .env.example .env
 ```
+
+**.env の設定内容:**
+
+```bash
+# OpenAI API設定
+OPENAI_API_KEY=sk-your-openai-api-key-here
+
+# GitHub設定（Zenn公開用）
+GITHUB_PAT=ghp_your_github_personal_access_token
+GITHUB_USER=your-github-username
+
+# Git設定（コミット時に使用）
+USER_NAME=Your Name
+USER_EMAIL=your.email@example.com
+
+# アプリケーション設定
+ARTICLE_DIR=/app/articles
+ROOT_DIR=/app
+```
+
+**GitHub Personal Access Tokenの取得方法:**
+1. GitHub Settings → Developer settings → Personal access tokens → Tokens (classic)
+2. "Generate new token" をクリック
+3. `repo` 権限にチェックを入れる
+4. 生成されたトークンを`GITHUB_PAT`に設定
+
+### 3. Dockerコンテナを起動
+
+```bash
+docker-compose up -d --build
+```
+
+起動ログを確認:
+```bash
+docker-compose logs -f
+```
+
+以下のようなログが表示されれば成功:
+```
+[INFO] Starting Zenn Publisher API...
+[INFO] Git configured: Your Name <your.email@example.com>
+[INFO] GitHub credentials configured
+[INFO] Zenn project already initialized
+[INFO] Node.js version: v20.19.6
+[INFO] npm version: 10.8.2
+[INFO] Zenn CLI version: 0.2.3
+[INFO] Setup complete! Starting FastAPI server...
+```
+
+---
+
+## 使い方
+
+### ヘルスチェック
+
+```bash
+curl http://localhost:8000/
+```
+
+**レスポンス:**
+```json
+{
+  "status": "ok",
+  "message": "Zenn Publisher API is running",
+  "version": "1.0.0"
+}
+```
+
+### 記事生成（手動コンテンツ）
+
+```bash
+curl -X POST http://localhost:8000/generate/ \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Docker環境でZenn CLIを使う方法",
+    "emoji": "🐳",
+    "type": "tech",
+    "content": "# はじめに\n\nDocker環境でZenn CLIを統合する方法を紹介します。"
+  }'
+```
+
+**レスポンス:**
+```json
+{
+  "status": "success",
+  "slug": "abc123def456"
+}
+```
+
+生成された記事は`articles/`ディレクトリに保存されます。
+
+### 記事生成（AI）
+
+```bash
+curl -X POST http://localhost:8000/generate/ai \
+  -H "Content-Type: application/json" \
+  -d '{
+    "prompt": "FastAPIとDockerの統合について",
+    "title": "FastAPI + Docker入門",
+    "emoji": "🚀",
+    "type": "tech"
+  }'
+```
+
+OpenAI APIが記事内容を自動生成します。
+
+### 記事公開
+
+```bash
+curl -X POST http://localhost:8000/publish/ \
+  -H "Content-Type: application/json" \
+  -d '{
+    "slug": "abc123def456"
+  }'
+```
+
+記事の`published`フラグが`true`に変更され、GitHubにcommit & pushされます。
+
+---
+
+## API仕様
+
+### エンドポイント一覧
+
+| メソッド | エンドポイント | 説明 |
+|---------|---------------|------|
+| GET | `/` | ヘルスチェック |
+| POST | `/generate/` | 手動コンテンツで記事作成 |
+| POST | `/generate/ai` | AI生成で記事作成 |
+| POST | `/publish/` | 記事をZennに公開 |
+
+### APIドキュメント
+
+FastAPIの自動生成ドキュメント:
+- Swagger UI: http://localhost:8000/docs
+- ReDoc: http://localhost:8000/redoc
+
+---
 
 ## プロジェクト構成
 
 ```
 Kenn_Zenn_Publisher/
-├── pyproject.toml          # 依存関係とプロジェクト設定
-├── .pre-commit-config.yaml # pre-commit設定
-├── docker-compose.yml      # Docker Compose設定
-├── .env / .env.example     # 環境変数
-└── backend/                # FastAPIアプリケーション
-    ├── main.py             # エントリーポイント
-    ├── core/               # 共通設定・ロガー
-    ├── routers/            # APIエンドポイント
-    ├── schemas/            # リクエスト/レスポンススキーマ
-    ├── services/           # ビジネスロジック
-    └── exceptions/         # カスタム例外
+├── .dockerignore            # Dockerビルド時の除外ファイル
+├── .env.example             # 環境変数テンプレート
+├── .gitignore               # Git除外設定
+├── .pre-commit-config.yaml  # pre-commit設定
+├── docker-compose.yml       # Docker Compose設定
+├── pyproject.toml           # Python依存関係
+├── README.md                # このファイル
+│
+├── backend/                 # FastAPIアプリケーション
+│   ├── Dockerfile           # Dockerイメージ定義
+│   ├── entrypoint.sh        # 起動スクリプト
+│   ├── main.py              # エントリーポイント
+│   │
+│   ├── core/                # コア設定
+│   │   ├── logger.py        # ロガー
+│   │   └── settings.py      # 環境変数管理
+│   │
+│   ├── routers/             # APIエンドポイント
+│   │   ├── generate.py      # 記事生成API
+│   │   └── publish.py       # 記事公開API
+│   │
+│   ├── schemas/             # リクエスト/レスポンス定義
+│   │   ├── generate_schema.py
+│   │   └── publish_schemas.py
+│   │
+│   ├── services/            # ビジネスロジック
+│   │   ├── ai_service.py    # OpenAI連携（将来実装予定）
+│   │   ├── file_service.py  # ファイル操作
+│   │   ├── generate_service.py  # 記事生成サービス
+│   │   ├── publish_service.py   # 公開サービス
+│   │   └── zenn_service.py      # Zenn CLI操作
+│   │
+│   └── exceptions/          # カスタム例外
+│       └── exceptions.py
+│
+├── articles/                # Zenn記事（Gitに含む）
+├── books/                   # Zenn本（将来使用予定）
+│
+└── docs/                    # プロジェクトドキュメント
+    └── integration-design/  # 統合設計ドキュメント
 ```
+
+---
+
+## 開発環境
+
+### ローカルでの開発（pre-commit使用）
+
+Docker環境以外でも開発できます。
+
+#### 1. Python環境のセットアップ
+
+```bash
+python -m venv .venv
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
+pip install -e ".[dev]"
+```
+
+#### 2. pre-commitのインストール
+
+```bash
+pre-commit install
+```
+
+これで、コミット時に自動でRuffによるコードチェックとフォーマットが実行されます。
+
+#### 3. コード品質チェック
+
+```bash
+# フォーマット
+ruff format .
+
+# Lint
+ruff check .
+
+# 自動修正
+ruff check --fix .
+```
+
+### コンテナ操作
+
+```bash
+# コンテナ起動
+docker-compose up -d
+
+# ログ確認
+docker-compose logs -f
+
+# コンテナ停止
+docker-compose down
+
+# コンテナに入る
+docker-compose exec fastapi bash
+
+# Zenn CLIを直接実行
+docker-compose exec fastapi npx zenn new:article
+```
+
+---
+
+## トラブルシューティング
+
+### Q. ポート8000が既に使用されている
+
+```bash
+# ポートを使用しているプロセスを確認
+lsof -i :8000
+
+# プロセスを終了
+kill -9 <PID>
+```
+
+### Q. 環境変数が読み込まれない
+
+- `.env`ファイルが存在するか確認
+- `docker-compose down` → `docker-compose up -d --build` で再起動
+
+### Q. Zenn CLIが動作しない
+
+コンテナ内で確認:
+```bash
+docker-compose exec fastapi npx zenn --version
+```
+
+### Q. 記事が生成されない
+
+1. ログを確認: `docker-compose logs -f`
+2. `articles/`ディレクトリの権限を確認
+3. エラーメッセージを確認して対処
+
+---
+
+## セキュリティに関する注意
+
+⚠️ **本番環境での使用前に以下を確認してください:**
+
+1. **環境変数の管理**
+   - `.env`ファイルは`.gitignore`に含まれていますが、誤ってコミットしないよう注意
+   - 本番環境ではDocker Secretsの使用を推奨（[Issue #5](https://github.com/kensan0123/Kenn_Zenn_Publisher/issues/5)参照）
+
+2. **GitHub Personal Access Token**
+   - 必要最小限の権限（`repo`のみ）で生成
+   - 定期的にトークンをローテーション
+
+3. **OpenAI API Key**
+   - 使用量の監視とレート制限の設定を推奨
+
+---
+
+## ライセンス
+
+MIT License
+
+---
+
+## 貢献
+
+プルリクエストやissueは大歓迎です！
+
+1. このリポジトリをフォーク
+2. フィーチャーブランチを作成 (`git checkout -b feat/amazing-feature`)
+3. 変更をコミット (`git commit -m 'feat: Add amazing feature'`)
+4. ブランチにプッシュ (`git push origin feat/amazing-feature`)
+5. プルリクエストを作成
+
+---
+
+## 参考資料
+
+- [Zenn CLI Documentation](https://zenn.dev/zenn/articles/zenn-cli-guide)
+- [FastAPI Documentation](https://fastapi.tiangolo.com/)
+- [Docker Compose Documentation](https://docs.docker.com/compose/)
