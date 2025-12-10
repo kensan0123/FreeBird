@@ -3,7 +3,7 @@ from fastapi import APIRouter
 from openai import OpenAI
 
 from core.settings import Settings
-from schemas.generate_schema import (
+from backend.schemas.zenn_article_schema import (
     AIGenerateRequest,
     AIPrompt,
     GeneratedResponse,
