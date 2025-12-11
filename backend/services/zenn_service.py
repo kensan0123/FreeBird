@@ -2,22 +2,19 @@ import re
 import subprocess
 from pathlib import Path
 from typing import List
-from backend.core.settings import Settings
+from backend.core.settings import settings
 from backend.services.file_service import FileService
 from fastapi import HTTPException
 from backend.schemas.zenn_article_schemas import GenerateRequest, GeneratedResponse
 from backend.schemas.zenn_article_schemas import PublishResponse
 from backend.exceptions.exceptions import UntitleException
 
-settings: Settings = Settings()  # type: ignore
-# ROOT_DIRは/appに設定（Zenn CLIの実行ディレクトリ）
-ROOT_DIR: Path = Path(settings.ROOT_DIR)
-# ARTICLES_DIRは絶対パスで設定
-ARTICLES_DIR: Path = Path(settings.ARTICLE_DIR)
-
 
 class ZennService:
     def __init__(self) -> None:
+        self._settings = settings
+        self._ROOT_DIR: Path = Path(self._settings.ROOT_DIR)
+        self._ARTICLES_DIR: Path = Path(self._settings.ARTICLE_DIR)
         self.file_service = FileService()
 
     def generate_article(self, article_info: GenerateRequest) -> GeneratedResponse:
@@ -33,7 +30,7 @@ class ZennService:
         slug: str | None = None
 
         # CLI実行前ファイル一覧
-        before_files = set(ARTICLES_DIR.glob("*.md"))
+        before_files = set(self._ARTICLES_DIR.glob("*.md"))
 
         # 新規記事作成
         if slug:
@@ -67,10 +64,10 @@ class ZennService:
                 "false",
             ]
 
-        subprocess.run(cmd, cwd=str(ROOT_DIR), check=True)
+        subprocess.run(cmd, cwd=str(self._ROOT_DIR), check=True)
 
         # CLI実行後ファイル一覧
-        after_files = set(ARTICLES_DIR.glob("*.md"))
+        after_files = set(self._ARTICLES_DIR.glob("*.md"))
 
         # 新しく作られたファイルを特定
         new_files = list(after_files - before_files)
@@ -171,7 +168,7 @@ class ZennService:
 
     def publish_article(self, slug: str) -> PublishResponse:
         # 対象ファイルを検索
-        md_files = list(ARTICLES_DIR.glob(f"*{slug}*.md"))
+        md_files = list(self._ARTICLES_DIR.glob(f"*{slug}*.md"))
         if not md_files:
             raise FileNotFoundError(f"記事が見つかりません: slug={slug}")
 
@@ -198,20 +195,20 @@ class ZennService:
         try:
             subprocess.run(
                 ["git", "add", "."],
-                cwd=str(ROOT_DIR),
+                cwd=str(self._ROOT_DIR),
                 check=True,
                 capture_output=True,
                 text=True,
             )
             subprocess.run(
                 ["git", "commit", "-m", f"publish {article_title}"],
-                cwd=str(ROOT_DIR),
+                cwd=str(self._ROOT_DIR),
                 check=True,
                 capture_output=True,
                 text=True,
             )
             subprocess.run(
-                ["git", "push"], cwd=str(ROOT_DIR), check=True, capture_output=True, text=True
+                ["git", "push"], cwd=str(self._ROOT_DIR), check=True, capture_output=True, text=True
             )
 
         except subprocess.CalledProcessError as e:

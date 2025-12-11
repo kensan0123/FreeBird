@@ -4,15 +4,13 @@ from pathlib import Path
 
 
 class Settings(BaseSettings):
-    OPENAI_API_KEY: str | None = None
-    OPENAI_API_KEY_FILE: str | None = None
-    ANTHROPIC_API_KEY: str | None = None
-    ANTHROPIC_API_KEY_FILE: str | None = None
-    ROOT_DIR: str
+    OPENAI_API_KEY: str
+    OPENAI_API_KEY_FILE: str
+    ANTHROPIC_API_KEY: str
+    ANTHROPIC_API_KEY_FILE: str
+    ROOT_DIR: str = Field(default="/app")
     ARTICLE_DIR: str = Field(default="./articles")
     GITHUB_USER: str
-    GITHUB_PAT: str | None = None
-    GITHUB_PAT_FILE: str | None = None
 
     @model_validator(mode="before")
     @classmethod
@@ -25,12 +23,12 @@ class Settings(BaseSettings):
                 if key.startswith("sk-"):
                     data["OPENAI_API_KEY"] = key
 
-        if not data.get("GITHUB_PAT"):
-            file_path = data.get("GITHUB_PAT_FILE")
+        if not data.get("ANTHROPIC_API_KEY"):
+            file_path = data.get("ANTHROPIC_API_KEY_FILE")
             if file_path and Path(file_path).exists():
-                pat = Path(file_path).read_text().strip()
-                if pat.startswith("ghp_"):
-                    data["GITHUB_PAT"] = pat
+                key = Path(file_path).read_text().strip()
+                if key.startswith("sk-"):
+                    data["ANTHROPIC_API_KEY"] = key
 
         return data
 
@@ -50,10 +48,5 @@ class Settings(BaseSettings):
             raise ValueError("Valid ANTHROPIC_API_KEY is requierd")
         return v
 
-    @field_validator("GITHUB_PAT")
-    @classmethod
-    def validate_github_pat(cls, v):
-        """GITHUB_PATが必須であることを検証"""
-        if not v or not v.startswith("ghp_"):
-            raise ValueError("Valid GITHUB_PAT is required")
-        return v
+
+settings: Settings = Settings()

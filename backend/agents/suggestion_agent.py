@@ -3,14 +3,10 @@ from anthropic.types import MessageParam, ToolUnionParam
 from typing import Dict, Any
 from backend.schemas.assistant_schemas import (
     WritingSession,
-    Suggestion,
     Suggestions,
     SuggestionResponse,
 )
-from backend.core.settings import Settings
-
-
-settings: Settings = Settings()  # type: ignore
+from backend.core.settings import settings
 
 
 class SuggestAgent:

@@ -2,7 +2,7 @@ import json
 from fastapi import APIRouter
 from openai import OpenAI
 
-from core.settings import Settings
+from core.settings import settings
 from backend.schemas.zenn_article_schemas import (
     AIGenerateRequest,
     AIPrompt,
@@ -11,7 +11,6 @@ from backend.schemas.zenn_article_schemas import (
 )
 from services.generate_service import GenerateService
 
-settings: Settings = Settings()
 openai_aip_key: str = settings.OPENAI_API_KEY
 generator: GenerateService = GenerateService()
 

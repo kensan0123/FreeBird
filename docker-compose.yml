@@ -14,6 +14,7 @@ services:
     secrets:
       - github_pat
       - openai_api_key
+      - anthropic_api_key
     environment:
       - GITHUB_USER=${GITHUB_USER}
       - USER_NAME=${USER_NAME}
@@ -31,4 +32,4 @@ secrets:
   openai_api_key:
     file: ./secrets/openai_api_key.txt
   anthropic_api_key:
-    file: ./secrets/anthropic_api_key
+    file: ./secrets/anthropic_api_key.txt

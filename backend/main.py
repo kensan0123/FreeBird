@@ -1,4 +1,4 @@
-from backend.routers import assist
+from backend.routers import suggest
 from core.logger import logger
 from fastapi import FastAPI
 from routers import generate, publish
@@ -18,6 +18,6 @@ async def root():
 
 app.include_router(generate.router)
 app.include_router(publish.router)
-app.include_router(assist.router)
+app.include_router(suggest.router)
 
 logger.info("FastAPI application started successfully")

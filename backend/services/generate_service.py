@@ -1,5 +1,5 @@
 from core.logger import logger
-from core.settings import Settings
+from core.settings import settings
 from backend.exceptions.exceptions import GenerateException
 from requests.exceptions import Timeout
 from backend.schemas.zenn_article_schemas import GeneratedResponse, GenerateRequest
@@ -8,7 +8,7 @@ from backend.services.zenn_service import ZennService
 
 class GenerateService:
     def __init__(self) -> None:
-        self._settings: Settings = Settings()  # type: ignore
+        self._settings = settings
         self._zenn_srevice: ZennService = ZennService()
 
     def generate_article(self, article_info: GenerateRequest) -> GeneratedResponse:
