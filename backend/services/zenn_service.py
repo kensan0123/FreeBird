@@ -9,7 +9,7 @@ from backend.schemas.zenn_article_schemas import GenerateRequest, GeneratedRespo
 from backend.schemas.zenn_article_schemas import PublishResponse
 from backend.exceptions.exceptions import UntitleException
 
-settings: Settings = Settings()
+settings: Settings = Settings()  # type: ignore
 # ROOT_DIRは/appに設定（Zenn CLIの実行ディレクトリ）
 ROOT_DIR: Path = Path(settings.ROOT_DIR)
 # ARTICLES_DIRは絶対パスで設定

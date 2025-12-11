@@ -5,12 +5,11 @@ from requests.exceptions import Timeout
 from backend.schemas.zenn_article_schemas import PublishRequest, PublishResponse
 from backend.services.zenn_service import ZennService
 
-settings: Settings = Settings()
+settings: Settings = Settings()  # type: ignore
 
 
 class PublishService:
     def __init__(self):
-        self._settings: Settings = Settings()
         self._zenn_srevice: ZennService = ZennService()
 
     def publish_article(self, req: PublishRequest) -> PublishResponse:

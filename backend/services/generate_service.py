@@ -8,7 +8,7 @@ from backend.services.zenn_service import ZennService
 
 class GenerateService:
     def __init__(self) -> None:
-        self._settings: Settings = Settings()
+        self._settings: Settings = Settings()  # type: ignore
         self._zenn_srevice: ZennService = ZennService()
 
     def generate_article(self, article_info: GenerateRequest) -> GeneratedResponse:

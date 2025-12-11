@@ -39,6 +39,10 @@ class Suggestion(BaseModel):
     priority: int
 
 
+class Suggestions(BaseModel):
+    suggestions: List[Suggestion]
+
+
 class RelatedLink(BaseModel):
     title: str
     url: str
@@ -47,6 +51,6 @@ class RelatedLink(BaseModel):
 
 
 class SuggestionResponse(BaseModel):
-    suggestions: List[Suggestion]
+    suggestions: Suggestions
     related_links: List[RelatedLink]
     summary_report: str

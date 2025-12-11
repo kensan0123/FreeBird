@@ -1,7 +1,7 @@
 from pathlib import Path
 from backend.core.settings import Settings
 
-settings: Settings = Settings()
+settings: Settings = Settings()  # type: ignore
 ARTICLES_DIR: Path = Path(settings.ARTICLE_DIR)
 
 
