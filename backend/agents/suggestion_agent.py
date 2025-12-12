@@ -28,7 +28,7 @@ class SuggestAgent:
 
         while True:
             response = self._client.messages.create(
-                model="claude-sonnet-4-5",
+                model="claude-3-5-haiku-latest",
                 max_tokens=1000,
                 system=_system_prompt,
                 tools=tools,
