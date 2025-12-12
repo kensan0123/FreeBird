@@ -36,3 +36,13 @@ class SessionException(Exception):
         self._endpoint: str = endpoint
         self._status_code: int | None = status_code
         super().__init__(message)
+
+
+class AgentException(Exception):
+    """Agent Exception"""
+
+    def __init__(self, message: str, endpoint: str, status_code: int | None = None):
+        self._message: str = message
+        self._endpoint: str = endpoint
+        self._status_code: int | None = status_code
+        super().__init__(message)

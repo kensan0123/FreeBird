@@ -7,6 +7,7 @@ from backend.schemas.assistant_schemas import (
     SuggestionResponse,
 )
 from backend.core.settings import settings
+from backend.exceptions.exceptions import AgentException
 
 
 class SuggestAgent:
@@ -52,7 +53,7 @@ class SuggestAgent:
                         )
                 messages.append({"role": "user", "content": tool_results})
 
-            else:
+            elif response.stop_reason == "end_turn":
                 final_text = ""
                 for block in response.content:
                     if block.type == "text":
@@ -67,14 +68,108 @@ class SuggestAgent:
                 )
                 return suggestion_respons
 
+            else:
+                raise AgentException(
+                    message="Agent call error",
+                    endpoint="/assist",
+                )
+
+    def _system_prompt(self):
+        _system_prompt: str = """
+        ## 役割
+
+        あなたは優秀な記事編集者兼記事編集アシスタントです。
+        あなたはユーザーが書く記事を記事執筆の途中段階で評価し、最適なアドバイスをユーザーに提供します。
+
+        ## 入力情報
+
+        - topic : 記事のテーマ・トピック
+        - target_audience : ターゲットとする視聴者
+        - outline : 記事の目次
+        - content : 記事全文
+        - current_section_id : 現在執筆中の目次項目
+        - current_content : 現在執筆中の目次項目の内容
+
+        ## 出力要件
+
+        - JSONフォーマット
+        - JSONのみ
+
+        ## 出力JSONスキーマ
+
+        ```inut_schema
+        {
+            "input_schema": {
+                "type": "object",
+                "properties": {
+                    "suggestion_id": {
+                        "type": "string",
+                        "description": "order of suggestion",
+                    },
+                    "type": {
+                        "type": "Literal["structure", "content", "improvement"]",
+                        "description": "type of suggest",
+                    },
+                    "title": {
+                        "type": "string",
+                        "description": "title of suggestion",
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "description of suggestion",
+                    },
+                    "priority": {
+                        "type": "int",
+                        "description": "priority of suggestion",
+                    },
+                },
+                "required": ["suggestion_id", "type", "title", "description", "priority"]
+            },
+        }
+
+        ```
+
+        ## 出力例
+
+        ```schema.json
+        {
+            [
+                {
+                    "suggestion_id": "1",
+                    "type": "structure",
+                    "title": "例を書くことを推奨",
+                    "description": "「Zenn CLIの使い方」に関する例を明示することを推奨します。
+                    例えば、---ポートを指定してプレビュー画面を表示する方法---\n
+                     npx zenn preview --port 8000 のような例を書くことを推奨します。"
+                    "priority": 2,
+                },
+                {
+                    "suggestion_id": "2",
+                    "type": "content",
+                    "title": "参考になりそうな情報",
+                    "description": "「Zenn CLIの使い方」に関す66る記事を書かれているようですが、
+                    追加情報として、Zenn CLI は GitHub 連携を行ることをこの章の記事内容に含むことを
+                    推奨します。参考になりそうな記事を載せます。"
+                    "priority": 1,
+                }
+            ]
+        }
+        ```
+        """
+
     def _build_prompt(
         self, session: WritingSession, current_session_id: str, current_content: str
     ) -> str:
         """prompt building"""
 
         prompt: str = f"""
-            {session}{current_session_id}{current_content}
-            """
+        - topic: {session.topic}
+        - tartet_audience: {session.target_audience}
+        - outline: {session.outline}
+        - content: {session.content}
+        - current_session_id: {current_session_id}
+        - current_content: {current_content}
+        """
         return prompt
 
     def _execute_tool(self, tool_name: str, tool_input: Dict[str, Any]) -> str:
