@@ -1,6 +1,6 @@
 from anthropic import Anthropic
 from anthropic.types import MessageParam, ToolUnionParam
-from typing import Dict, Any
+from typing import Dict, Any, List
 from backend.schemas.assistant_schemas import (
     WritingSession,
     Suggestions,
@@ -8,11 +8,13 @@ from backend.schemas.assistant_schemas import (
 )
 from backend.core.settings import settings
 from backend.exceptions.exceptions import AgentException
+from backend.agents.web_search_agent import WebSearchAgent, WebSearchResponse
 
 
 class SuggestAgent:
     def __init__(self):
         self._client = Anthropic(api_key=settings.ANTHROPIC_API_KEY)
+        self._web_search_client: WebSearchAgent = WebSearchAgent()
 
     def generate_suggestion(
         self, writing_session: WritingSession, current_section_id: str, current_content: str
@@ -211,15 +213,17 @@ class SuggestAgent:
         """Execute the tool and return result"""
 
         if tool_name == "web_search":
-            # ----------hook the tool
+            _web_search_response: WebSearchResponse = self._web_search_client.search_web(
+                query=tool_input["query"]
+            )
 
-            return f"Search result for: {tool_input['query']}"
+            return f"Search result for: {tool_input['query']} \n\n {_web_search_response}"
         return "Unknown tool"
 
-    def _build_tools(self) -> list[ToolUnionParam]:
+    def _build_tools(self) -> List[ToolUnionParam]:
         """tools buildeing for anthropic agent"""
 
-        tools: list[ToolUnionParam] = [
+        tools: List[ToolUnionParam] = [
             {
                 "name": "web_search",
                 "description": "Search the web for information",
@@ -233,6 +237,6 @@ class SuggestAgent:
                     },
                     "required": ["query"],
                 },
-            }  # type: ignore
+            }
         ]
         return tools

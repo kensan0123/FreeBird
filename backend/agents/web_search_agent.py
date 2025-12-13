@@ -1,4 +1,6 @@
 from anthropic import Anthropic
+from anthropic.types import ToolUnionParam, MessageParam
+from anthropic.types.web_search_tool_result_block import WebSearchToolResultBlock
 from backend.core.settings import settings
 from typing import List
 from backend.schemas.assistant_schemas import WebSearchResponse, RelatedLink
@@ -13,9 +15,11 @@ class WebSearchAgent:
         """web search agent"""
 
         _system_prompt = ""
-        _tools = [{"type": "web_search_20250305", "name": "web_search", "max_uses": 5}]
-        _prompt = ""
-        _messages = [{"role": "user", "content": _prompt}]
+        _tools: List[ToolUnionParam] = [
+            {"type": "web_search_20250305", "name": "web_search", "max_uses": 5}
+        ]
+        _prompt = f"search query from parent agent: {query}"
+        _messages: List[MessageParam] = [{"role": "user", "content": _prompt}]
 
         response = self._client.messages.create(
             model="claude-3-5-haiku-latest",
@@ -25,29 +29,41 @@ class WebSearchAgent:
             messages=_messages,
         )
 
+        _search_report: str = ""
+
         if response.stop_reason == "end_turn":
             _related_links: List[RelatedLink] = []
             for block in response.content:
                 if block.type == "web_search_tool_result":
-                    for b in block.content:
-                        if b.type == "web_search_result":
-                            _related_links.append(b.url)
+                    if isinstance(block, WebSearchToolResultBlock):
+                        if isinstance(block.content, list):
+                            for b in block.content:
+                                if b.type == "web_search_result":
+                                    _related_links.append(
+                                        RelatedLink(
+                                            title=b.title,
+                                            url=b.url,
+                                        )
+                                    )
 
                 elif block.type == "text":
-                    _search_result: str = block.text
+                    _search_report: str = block.text
 
-                    search_response: WebSearchResponse = WebSearchResponse(
-                        search_result=_search_result, related_links=_related_links
-                    )
-
-                    return search_response
-            raise AgentException(
-                message="Web search agent error: response not exist",
-                endpoint="/assist",
+            search_response: WebSearchResponse = WebSearchResponse(
+                search_result=_search_report, related_links=_related_links
             )
+
+            if _search_report == "":
+                raise AgentException(
+                    message="Web search agent error: response text not found",
+                    endpoint="/assist",
+                )
+
+            return search_response
+
         else:
             raise AgentException(
-                message="Web search agent error",
+                message="Web search agent error: end_turn not found",
                 endpoint="/assist",
             )
 
@@ -117,5 +133,9 @@ class WebSearchAgent:
 
             CI/CDを活用することで、記事品質の担保、チーム執筆の効率化、安全な公開フローを実現できます。"
         }
+
+        # 注意
+        - 出力例はweb_searchの結果報告レポートの例を示しているが、より文章を短くしても親エージェント
+        に伝わると考えた場合は文章を削減して、レポートにすること。
         ```
         """

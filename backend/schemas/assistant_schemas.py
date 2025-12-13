@@ -51,8 +51,8 @@ class Suggestions(BaseModel):
 class RelatedLink(BaseModel):
     title: str
     url: str
-    source: str
-    relevance_score: float
+    # source: str
+    # relevance_score: float
 
 
 class SuggestionResponse(BaseModel):
