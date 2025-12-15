@@ -176,13 +176,6 @@ class SuggestAgent:
                     },
                 ]
             },
-            "related_links": {
-                [
-                "https://zenn.dev/zenn/articles/install-zenn-cli",
-                "https://qiita.com/blackdesign/items/e061aee4eea4db0922f2",
-                "https://unikoukokun.jp/n/n7f02bd545127",
-                ]
-            },
             "summary_report": {
                 "記事序盤の第1章から第3章までの構成は初めてZenn CLIを触る人にとって、1から導入
                 方法を述べられているため非常にわかりやすい構成となっています。一方で、応用編の第4章からについてはGitHubとの連携方法や
