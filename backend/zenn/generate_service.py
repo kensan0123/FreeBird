@@ -1,14 +1,14 @@
 from core.logger import logger
-from core.settings import Settings
+from core.settings import settings
 from backend.exceptions.exceptions import GenerateException
 from requests.exceptions import Timeout
-from schemas.generate_schema import GeneratedResponse, GenerateRequest
-from backend.services.zenn_service import ZennService
+from backend.zenn.zenn_article_schemas import GeneratedResponse, GenerateRequest
+from backend.zenn.zenn_service import ZennService
 
 
 class GenerateService:
     def __init__(self) -> None:
-        self._settings: Settings = Settings()
+        self._settings = settings
         self._zenn_srevice: ZennService = ZennService()
 
     def generate_article(self, article_info: GenerateRequest) -> GeneratedResponse:
