@@ -11,6 +11,9 @@ class Settings(BaseSettings):
     ROOT_DIR: str = Field(default="/app")
     ARTICLE_DIR: str = Field(default="./articles")
     GITHUB_USER: str
+    POSTGRESQL_USER: str
+    POSTGRESQL_PASSWORD: str
+    POSTGRESQL_DB: str
 
     @model_validator(mode="before")
     @classmethod

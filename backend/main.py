@@ -1,13 +1,25 @@
+from fastapi import FastAPI
+from contextlib import asynccontextmanager
 from backend.routers import suggest
 from backend.zenn import generate
 from core.logger import logger
-from fastapi import FastAPI
 from backend.zenn import publish
+from backend.models.session_model import WritingSessionModel
+from backend.core.database import database
+
+
+@asynccontextmanager
+async def set_db(app: FastAPI):
+    database.create_tables()
+    logger.info("Connected to DataBase")
+    yield
+
 
 app = FastAPI(
     title="Zenn Publisher API",
     description="API for generating and publishing Zenn articles",
     version="1.0.0",
+    lifespan=set_db,
 )
 
 
