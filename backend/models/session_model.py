@@ -22,7 +22,6 @@ class WritingSessionModel(Base):
     )
     target_audience = Column(
         String(50),
-        nullable=False,
     )
     outline = Column(
         JSON,

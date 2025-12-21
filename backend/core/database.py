@@ -16,7 +16,7 @@ class DataBase:
         self._port: int = 5432
 
         self._database_url = (
-            f"postgresql://{self._user}:{self._pass}" f"@{self._host}:{self._port}/{self._db}"
+            f"postgresql://{self._user}:{self._pass}@{self._host}:{self._port}/{self._db}"
         )
 
         self._engine: Engine = create_engine(
