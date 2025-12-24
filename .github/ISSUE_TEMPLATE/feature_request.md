@@ -1,9 +1,6 @@
 ---
-name: 
-about: 
-title: "[] "
-labels: 
-assignees: ''
+name: Isuue
+about: Anything acout this repo
 ---
 
 ## Problem
