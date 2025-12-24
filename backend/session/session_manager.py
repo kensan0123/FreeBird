@@ -82,7 +82,7 @@ class SessionManager:
             return session_response
 
         raise SessionException(
-            message="Session id is already exists.",
+            message="Session not found",
             endpoint="/assist",
         )
 
@@ -90,7 +90,7 @@ class SessionManager:
     def check_db_by_session_id(self, session_id: str) -> WritingSessionModel | None:
         if not session_id:
             raise SessionException(
-                message="Session ID is not found",
+                message="Session is is not registerd",
                 endpoint="/assist",
             )
         else:
