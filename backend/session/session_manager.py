@@ -74,8 +74,6 @@ class SessionManager:
             fetched_model.content = writing_session_json["content"]
             fetched_model.updated_at = datetime.now()
 
-            self._db.commit()
-
             session_response: CreateSessionResponse = CreateSessionResponse(
                 status="success",
                 session_id=_session_id,
