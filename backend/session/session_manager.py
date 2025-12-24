@@ -21,14 +21,14 @@ class SessionManager:
     def create_session(self, topic: str) -> CreateSessionResponse:
         """Create session and return session_id"""
 
-        _session_id = str(uuid.uuid4())
+        _session_id = str(uuid.uuid4())  # review: session id should created by pre layer.
         if not self.check_db_by_session_id(_session_id):
-            created_session_model: WritingSessionModel = WritingSessionModel(
+            created_model: WritingSessionModel = WritingSessionModel(
                 session_id=_session_id,
                 topic=topic,
             )
 
-            self._db.add(created_session_model)
+            self._db.add(created_model)
 
             session_response: CreateSessionResponse = CreateSessionResponse(
                 status="success",
@@ -44,10 +44,20 @@ class SessionManager:
 
     def get_session(self, session_id: str) -> WritingSession:
         """Return WritingSession by session_id"""
-        if self.check_db_by_session_id(session_id=session_id):
-            fetched_session: WritingSession = self._db.get(
-                WritingSessionModel, {"session_id": session_id}
+
+        fetched_model: WritingSessionModel = self.check_db_by_session_id(session_id=session_id)
+        if fetched_model:
+            # review: is there a more simple code... (dump into session obj)
+            fetched_session: WritingSession = WritingSession(
+                session_id=fetched_model.session_id,
+                topic=fetched_model.topic,
+                target_audience=fetched_model.target_audience,
+                outline=fetched_model.outline,
+                content=fetched_model.content,
+                created_at=fetched_model.created_at,
+                updated_at=fetched_model.updated_at,
             )
+            return fetched_session
 
         else:
             raise SessionException(
@@ -55,14 +65,21 @@ class SessionManager:
                 endpoint="/assist",
             )
 
-        return fetched_session
-
-    def update_session(self, writing_session: WritingSession, db: Session) -> CreateSessionResponse:
+    def update_session(self, writing_session: WritingSession) -> CreateSessionResponse:
         """Create session and return session_id"""
 
         _session_id = writing_session.session_id
-        if self.check_db_by_session_id(session_id=_session_id):
-            _updated_session: WritingSession = writing_session
+        fetched_model: WritingSessionModel = self.check_db_by_session_id(session_id=_session_id)
+        if fetched_model:
+            _updated_session: WritingSession = WritingSession(
+                session_id=_session_id,
+                topic=writing_session.topic,
+                target_audience=writing_session.target_audience,
+                outline=writing_session.outline,
+                content=writing_session.content,
+                created_at=fetched_model.created_at,
+                updated_at=datetime.now(),
+            )
 
             session_response: CreateSessionResponse = CreateSessionResponse(
                 status="success",

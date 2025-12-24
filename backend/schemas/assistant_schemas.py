@@ -8,6 +8,11 @@ class CreateSessionResponse(BaseModel):
     session_id: str | None
 
 
+class UpdatedSessionResponse(BaseModel):
+    status: Literal["success", "fail"]
+    session_id: str | None
+
+
 class WritingInfo(BaseModel):
     topic: str
     target_audience: Literal["beginner", "intermediate", "advance"] | None = None
