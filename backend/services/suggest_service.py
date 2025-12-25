@@ -11,7 +11,7 @@ from backend.schemas.assistant_schemas import (
 
 
 # refactor: thre are complex roule each function may access by id or obj...
-class SuggestSearvice:
+class SuggestService:
     """agentとsessionを定義する"""
 
     def __init__(self, db: Session):
