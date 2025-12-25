@@ -5,6 +5,9 @@ from backend.core.settings import settings
 from typing import List
 from backend.schemas.assistant_schemas import WebSearchResponse, RelatedLink
 from backend.exceptions.exceptions import AgentException
+from backend.core.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 class WebSearchAgent:
@@ -30,7 +33,9 @@ class WebSearchAgent:
         )
 
         _search_report: str = ""
-        print(f"\n---------web_search_response---------\n{response}")
+
+        logger.debug(f"web_search agent response: {response.content}")
+
         if response.stop_reason == "end_turn":
             _related_links: List[RelatedLink] = []
             for block in response.content:

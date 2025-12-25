@@ -7,9 +7,11 @@ from backend.schemas.assistant_schemas import (
     SuggestionResponse,
 )
 from backend.core.settings import settings
-from backend.core.logger import logger
+from backend.core.logger import get_logger
 from backend.exceptions.exceptions import AgentException
 from backend.agents.web_search_agent import WebSearchAgent, WebSearchResponse
+
+logger = get_logger(__name__)
 
 
 class SuggestAgent:

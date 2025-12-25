@@ -65,7 +65,7 @@ class SessionManager:
 
         _session_id = writing_session.session_id
         writing_session_json = writing_session.model_dump()
-        print(writing_session_json["content"])
+
         fetched_model: WritingSessionModel = self.check_db_by_session_id(session_id=_session_id)
         if fetched_model:
             fetched_model.topic = writing_session_json["topic"]
