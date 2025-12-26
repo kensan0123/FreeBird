@@ -23,7 +23,7 @@ class WebSearchAgent:
         ]
         prompt = f"search query from parent agent: {query}"
         messages: List[MessageParam] = [{"role": "user", "content": prompt}]
-        logger.debug(query)
+
         logger.info("Called web search agent")
         response = self._client.messages.create(
             model="claude-3-5-haiku-latest",
@@ -34,8 +34,9 @@ class WebSearchAgent:
         )
 
         search_report: str = ""
-        logger.debug(response)
+
         logger.info("Finished web searching")
+
         if response.stop_reason == "end_turn":
             related_links: List[RelatedLink] = []
             for block in response.content:
@@ -54,7 +55,7 @@ class WebSearchAgent:
                 elif block.type == "text":
                     logger.info("Appending report")
                     logger.info(block.text)
-                    search_report: str = block.text
+                    search_report += block.text
 
             if search_report == "":
                 raise AgentException(
@@ -143,11 +144,11 @@ class WebSearchAgent:
 
             CI/CDを活用することで、記事品質の担保、チーム執筆の効率化、安全な公開フローを実現できます。"
         }
+        ```
 
         # 注意
         - 出力例はweb_searchの結果報告レポートの例を示しているが、より文章を短くしても親エージェント
         に伝わると考えた場合は文章を削減して、レポートにすること。
-        ```
         """
 
         return _system_prompt

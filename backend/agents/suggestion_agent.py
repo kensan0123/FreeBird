@@ -67,6 +67,7 @@ class SuggestAgent:
                         )
                 messages.append({"role": "user", "content": tool_results})
                 logger.info("Return results to suggest agent")
+                logger.debug(tool_results)
 
             elif response.stop_reason == "end_turn":
                 logger.info("Finish generating suggestion")
