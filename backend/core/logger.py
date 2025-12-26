@@ -10,6 +10,7 @@ def configure_logging(level: str | None = None):
     root_logger.handlers.clear()
 
     root_handler = logging.StreamHandler()
+    root_logger.setLevel(logger_level)
     root_handler.setLevel(logger_level)
     _fmt = logging.Formatter(
         fmt="%(asctime)s - %(name)s - %(levelname)s - %(message)s",

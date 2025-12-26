@@ -17,34 +17,34 @@ class WebSearchAgent:
     def search_web(self, query: str) -> WebSearchResponse:
         """web search agent"""
 
-        _system_prompt = self._system_prompt()
-        _tools: List[ToolUnionParam] = [
+        system_prompt = self._system_prompt()
+        tools: List[ToolUnionParam] = [
             {"type": "web_search_20250305", "name": "web_search", "max_uses": 5}
         ]
-        _prompt = f"search query from parent agent: {query}"
-        _messages: List[MessageParam] = [{"role": "user", "content": _prompt}]
-
+        prompt = f"search query from parent agent: {query}"
+        messages: List[MessageParam] = [{"role": "user", "content": prompt}]
+        logger.debug(query)
+        logger.info("Called web search agent")
         response = self._client.messages.create(
             model="claude-3-5-haiku-latest",
             max_tokens=1000,
-            system=_system_prompt,
-            tools=_tools,
-            messages=_messages,
+            system=system_prompt,
+            tools=tools,
+            messages=messages,
         )
 
-        _search_report: str = ""
-
-        logger.debug(f"web_search agent response: {response.content}")
-
+        search_report: str = ""
+        logger.debug(response)
+        logger.info("Finished web searching")
         if response.stop_reason == "end_turn":
-            _related_links: List[RelatedLink] = []
+            related_links: List[RelatedLink] = []
             for block in response.content:
                 if block.type == "web_search_tool_result":
                     if isinstance(block, WebSearchToolResultBlock):
                         if isinstance(block.content, list):
                             for b in block.content:
                                 if b.type == "web_search_result":
-                                    _related_links.append(
+                                    related_links.append(
                                         RelatedLink(
                                             title=b.title,
                                             url=b.url,
@@ -52,17 +52,21 @@ class WebSearchAgent:
                                     )
 
                 elif block.type == "text":
-                    _search_report: str = block.text
+                    logger.info("Appending report")
+                    logger.info(block.text)
+                    search_report: str = block.text
 
-            search_response: WebSearchResponse = WebSearchResponse(
-                search_result=_search_report, related_links=_related_links
-            )
-
-            if _search_report == "":
+            if search_report == "":
                 raise AgentException(
                     message="Web search agent error: response text not found",
                     endpoint="/assist",
                 )
+            logger.info(related_links)
+            logger.info(search_report)
+            search_response: WebSearchResponse = WebSearchResponse(
+                search_result=search_report, related_links=related_links
+            )
+            logger.info("Properly finished web search")
 
             return search_response
 

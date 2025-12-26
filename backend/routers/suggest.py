@@ -69,5 +69,4 @@ def update_writing(
     suggest_service: SuggestService = SuggestService(db=db)
 
     response = suggest_service.update_session(writing_session=writing_session)
-    logger.info("Updated session: session_id=%s", writing_session.session_id)
     return response

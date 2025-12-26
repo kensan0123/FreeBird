@@ -9,7 +9,7 @@ from backend.core.database import database
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    configure_logging(level="INFO")
+    configure_logging(level="DEBUG")
     logger = get_logger(__name__)
     database.create_tables()
 
