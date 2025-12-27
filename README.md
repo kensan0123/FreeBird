@@ -13,6 +13,23 @@ I (Kensuke Nakamura - founder of this repo) want to make them easier to write or
 
 When user push "Suggest" button, AI Assistant read all content in current article and returns Suggestion to improve it (That's all).
 
+## Project Status
+
+### Current Stage
+
+**Debelopment Stage**: Alpha(Active Development)
+
+This project is currently under active development and is not yet production-ready.
+
+### Implemented Features
+
+- ✅ AI-powerd article suggestion system
+- ✅ FastAPI backend with PostgreSQL database
+
+### In Progress
+
+- 🚧 Frontend development (technology stack to be decided)
+
 ## For Developers
 
 ### Technology Stack
@@ -26,7 +43,7 @@ When user push "Suggest" button, AI Assistant read all content in current articl
   - Python
   - FastAPI
   - SQLAlchemy
-  - Ruff
+  - Ruffß
 
 - Database
 
@@ -62,7 +79,7 @@ When user push "Suggest" button, AI Assistant read all content in current articl
    POSTGRES_DB=your-db-name
    ```
 
-   > note
+   > [!NOTE]
    > Variables related to GitHub is bad influence from old project.
    > Soon Remove this.
 
@@ -82,8 +99,7 @@ We welcome contributions!
 - `refactor/<description>/<issue_num>` - Code refactoring
 - `docs/<description>/<issue_num>` - Documentation updates
 
-> warning
-> **Important**: Never commit directly to the `main` branch.
+> [IMPORTANT] > **Important**: Never commit directly to the `main` branch.
 
 ### API Endpoint
 
